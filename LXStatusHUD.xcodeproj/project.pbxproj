@@ -13,7 +13,7 @@
 		18560B9C1C1AB62200FCE2E7 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 18560B9A1C1AB62200FCE2E7 /* Main.storyboard */; };
 		18560B9E1C1AB62200FCE2E7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 18560B9D1C1AB62200FCE2E7 /* Assets.xcassets */; };
 		18560BA11C1AB62200FCE2E7 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 18560B9F1C1AB62200FCE2E7 /* LaunchScreen.storyboard */; };
-		18EC45E91C1C0D0C007F8D0E /* LXStatusHUD.m in Sources */ = {isa = PBXBuildFile; fileRef = 18EC45E81C1C0D0C007F8D0E /* LXStatusHUD.m */; };
+		18EC092A1C1EF24500D8FE30 /* LXStatusHUD.m in Sources */ = {isa = PBXBuildFile; fileRef = 18EC09291C1EF24500D8FE30 /* LXStatusHUD.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -27,8 +27,8 @@
 		18560B9D1C1AB62200FCE2E7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		18560BA01C1AB62200FCE2E7 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		18560BA21C1AB62200FCE2E7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		18EC45E71C1C0D0C007F8D0E /* LXStatusHUD.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LXStatusHUD.h; sourceTree = "<group>"; };
-		18EC45E81C1C0D0C007F8D0E /* LXStatusHUD.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LXStatusHUD.m; sourceTree = "<group>"; };
+		18EC09281C1EF24500D8FE30 /* LXStatusHUD.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LXStatusHUD.h; sourceTree = "<group>"; };
+		18EC09291C1EF24500D8FE30 /* LXStatusHUD.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LXStatusHUD.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -45,7 +45,8 @@
 		18560B851C1AB62100FCE2E7 = {
 			isa = PBXGroup;
 			children = (
-				18560B901C1AB62100FCE2E7 /* LXStatusHUD */,
+				18EC09271C1EF24500D8FE30 /* LXStatusHUD */,
+				18560B901C1AB62100FCE2E7 /* Demo */,
 				18560B8F1C1AB62100FCE2E7 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -58,22 +59,20 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		18560B901C1AB62100FCE2E7 /* LXStatusHUD */ = {
+		18560B901C1AB62100FCE2E7 /* Demo */ = {
 			isa = PBXGroup;
 			children = (
 				18560B941C1AB62200FCE2E7 /* AppDelegate.h */,
 				18560B951C1AB62200FCE2E7 /* AppDelegate.m */,
 				18560B971C1AB62200FCE2E7 /* ViewController.h */,
 				18560B981C1AB62200FCE2E7 /* ViewController.m */,
-				18EC45E71C1C0D0C007F8D0E /* LXStatusHUD.h */,
-				18EC45E81C1C0D0C007F8D0E /* LXStatusHUD.m */,
 				18560B9A1C1AB62200FCE2E7 /* Main.storyboard */,
 				18560B9D1C1AB62200FCE2E7 /* Assets.xcassets */,
 				18560B9F1C1AB62200FCE2E7 /* LaunchScreen.storyboard */,
 				18560BA21C1AB62200FCE2E7 /* Info.plist */,
 				18560B911C1AB62100FCE2E7 /* Supporting Files */,
 			);
-			path = LXStatusHUD;
+			path = Demo;
 			sourceTree = "<group>";
 		};
 		18560B911C1AB62100FCE2E7 /* Supporting Files */ = {
@@ -82,6 +81,15 @@
 				18560B921C1AB62200FCE2E7 /* main.m */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		18EC09271C1EF24500D8FE30 /* LXStatusHUD */ = {
+			isa = PBXGroup;
+			children = (
+				18EC09281C1EF24500D8FE30 /* LXStatusHUD.h */,
+				18EC09291C1EF24500D8FE30 /* LXStatusHUD.m */,
+			);
+			path = LXStatusHUD;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -155,8 +163,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				18EC45E91C1C0D0C007F8D0E /* LXStatusHUD.m in Sources */,
 				18560B991C1AB62200FCE2E7 /* ViewController.m in Sources */,
+				18EC092A1C1EF24500D8FE30 /* LXStatusHUD.m in Sources */,
 				18560B961C1AB62200FCE2E7 /* AppDelegate.m in Sources */,
 				18560B931C1AB62200FCE2E7 /* main.m in Sources */,
 			);
@@ -270,7 +278,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				INFOPLIST_FILE = LXStatusHUD/Info.plist;
+				INFOPLIST_FILE = Demo/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.cjyh.LXStatusHUD;
 				PRODUCT_NAME = LXStatusHUD;
@@ -281,7 +289,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				INFOPLIST_FILE = LXStatusHUD/Info.plist;
+				INFOPLIST_FILE = Demo/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.cjyh.LXStatusHUD;
 				PRODUCT_NAME = LXStatusHUD;

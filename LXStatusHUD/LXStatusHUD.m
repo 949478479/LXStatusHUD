@@ -82,7 +82,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - LXStatusHUD -
 
-#define LX_DEBUG 1
+#define LX_DEBUG 0
 
 static const CFTimeInterval kStrokeRingAnimationDuration    = 1.0;
 static const CFTimeInterval kThrowSmallBarAnimationDuration = 0.5;
@@ -748,11 +748,6 @@ static inline void _PerformAfterDelay(CFTimeInterval delay, dispatch_block_t blo
     _PerformAfterDelay(kExclamationAnimationDuration + kRemovePatternDelayTime, ^{
         [self removeFromSuperview];
     });
-}
-
-- (void)dealloc
-{
-    NSLog(@"%@", self);
 }
 
 @end
