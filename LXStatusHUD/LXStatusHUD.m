@@ -82,11 +82,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - LXStatusHUD -
 
-#define LX_DEBUG 0
+#define LX_DEBUG 1
 
 static const CFTimeInterval kStrokeRingAnimationDuration    = 1.0;
 static const CFTimeInterval kThrowSmallBarAnimationDuration = 0.5;
-static const CFTimeInterval kImpactAnimationDuration        = 0.25;
+static const CFTimeInterval kImpactAnimationDuration        = 0.5;
 static const CFTimeInterval kExclamationAnimationDuration   = 0.5;
 static const CFTimeInterval kCheckmarkAnimationDuration     = 0.5;
 static const CFTimeInterval kRemovePatternDelayTime         = 0.5;
@@ -107,11 +107,6 @@ static inline UIColor * _CheckmarkColor()
 static inline UIColor * _ExclamationColor()
 {
     return [UIColor colorWithRed:0.894 green:0.278 blue:0.255 alpha:1.000];
-}
-
-static inline CGRect _ScreenBounds()
-{
-    return UIScreen.mainScreen.bounds;
 }
 
 static inline CGPoint _PointOffset(CGPoint point, CGFloat dx, CGFloat dy)
@@ -170,8 +165,6 @@ static inline void _PerformAfterDelay(CFTimeInterval delay, dispatch_block_t blo
     CAShapeLayer *_topExclamationLayer;
     CAShapeLayer *_bottomExclamationLayer;
 
-    CALayer *_wrapperLayer;
-
     BOOL _showSuccess;
 }
 @synthesize radius = _radius;
@@ -180,18 +173,43 @@ static inline void _PerformAfterDelay(CFTimeInterval delay, dispatch_block_t blo
 @synthesize checkmarkColor = _checkmarkColor;
 @synthesize exclamationColor = _exclamationColor;
 
+#pragma mark - 公共 -
+
++ (void)showSuccess
+{
+    [[self HUDWithConfiguration:nil] _showSuccess];
+}
+
++ (void)showFailure
+{
+    [[self HUDWithConfiguration:nil] _showFailure];
+}
+
++ (void)showSuccessWithConfiguration:(LXHUDConfiguration)configuration
+{
+    [[self HUDWithConfiguration:configuration] _showSuccess];
+}
+
++ (void)showFailureWithConfiguration:(LXHUDConfiguration)configuration
+{
+    [[self HUDWithConfiguration:configuration] _showFailure];
+}
+
+#pragma mark - 私有 -
+
 #pragma mark 初始化
 
 - (instancetype)initWithConfigurer:(id<LXHUDConfiguration>)configurer
 {
-    self = [super initWithFrame:_ScreenBounds()];
+    CGFloat sideLength = 2 * configurer.radius;
+    self = [super initWithFrame:CGRectMake(0, 0, sideLength, sideLength)];
     if (self) {
         _radius = configurer.radius;
         _lineWidth = configurer.lineWidth;
         _ringColor = configurer.ringColor;
         _checkmarkColor = configurer.checkmarkColor;
         _exclamationColor = configurer.exclamationColor;
-        
+
         [self _setupRingLayer];
         [self _setupSmallBarLayer];
     }
@@ -229,29 +247,46 @@ static inline void _PerformAfterDelay(CFTimeInterval delay, dispatch_block_t blo
     return [[LXStatusHUD alloc] initWithConfigurer:configurer];
 }
 
-#pragma mark 公共方法
+#pragma mark 触摸拦截
 
-+ (void)showSuccess
+- (nullable UIView *)hitTest:(CGPoint)point withEvent:(nullable UIEvent *)event
 {
-    [[self HUDWithConfiguration:nil] _showSuccess];
+    return self;
 }
 
-+ (void)showFailure
+#pragma mark 布局
+
+- (CGPoint)_center
 {
-    [[self HUDWithConfiguration:nil] _showFailure];
+    return (CGPoint){ CGRectGetMidX(self.bounds), CGRectGetMidY(self.bounds) };
 }
 
-+ (void)showSuccessWithConfiguration:(LXHUDConfiguration)configuration
+- (void)_setupConstraints
 {
-    [[self HUDWithConfiguration:configuration] _showSuccess];
+    NSMutableArray *constraints = [NSMutableArray array];
+    {
+        const int count = 4;
+        NSLayoutAttribute attributes[count] = {
+            NSLayoutAttributeCenterX,
+            NSLayoutAttributeCenterY,
+            NSLayoutAttributeWidth,
+            NSLayoutAttributeHeight,
+        };
+        for (int i = 0; i < count; ++i) {
+            [constraints addObject:[NSLayoutConstraint constraintWithItem:self
+                                                                attribute:attributes[i]
+                                                                relatedBy:NSLayoutRelationEqual
+                                                                   toItem:i < 2 ? self.superview : nil
+                                                                attribute:attributes[i]
+                                                               multiplier:1.0
+                                                                 constant:i < 2 ? 0 : _radius * 2]];
+        }
+    }
+    [self.superview addConstraints:constraints];
+    self.translatesAutoresizingMaskIntoConstraints = NO;
 }
 
-+ (void)showFailureWithConfiguration:(LXHUDConfiguration)configuration
-{
-    [[self HUDWithConfiguration:configuration] _showFailure];
-}
-
-#pragma mark - 私有方法 -
+#pragma mark 显示
 
 - (void)_showSuccess
 {
@@ -275,7 +310,10 @@ static inline void _PerformAfterDelay(CFTimeInterval delay, dispatch_block_t blo
 #if LX_DEBUG && DEBUG
     [self _debug];
 #endif
+
     [[UIApplication sharedApplication].keyWindow addSubview:self];
+
+    [self _setupConstraints];
 
     [self _startAnimation];
 }
@@ -292,17 +330,19 @@ static inline void _PerformAfterDelay(CFTimeInterval delay, dispatch_block_t blo
             [self _performIncreaseBigBarAnimation] :
             [self _performIncreaseExclamationAnimation];
 
-            [self _performExtrusionRingAnimation];
+            [self _performExtrusionRingAnimationWithCompletion:^(BOOL finished) {
 
-            _PerformAfterDelay(kImpactAnimationDuration + kRemovePatternDelayTime, ^{
-                _showSuccess ?
-                [self _removeBigBarLayers],
-                [self _performCheckmarkAnimation] :
-                [self _performShakeExclamationAnimation];
-            });
+                _PerformAfterDelay(kRemovePatternDelayTime, ^{
+                    _showSuccess ?
+                    [self _performCheckmarkAnimation] :
+                    [self _performShakeExclamationAnimation];
+                });
+            }];
         }];
     }];
 }
+
+#pragma mark 调试
 
 #if LX_DEBUG && DEBUG
 - (void)_debug
@@ -364,7 +404,7 @@ static inline void _PerformAfterDelay(CFTimeInterval delay, dispatch_block_t blo
         _ringLayer.lineWidth   = _lineWidth;
         _ringLayer.path        = path;
         _ringLayer.bounds      = CGPathGetBoundingBox(path);
-        _ringLayer.position    = self.center;
+        _ringLayer.position    = [self _center];
     }
     [self.layer addSublayer:_ringLayer];
 }
@@ -386,7 +426,7 @@ static inline void _PerformAfterDelay(CFTimeInterval delay, dispatch_block_t blo
     [_ringLayer lx_addAnimation:animationGroup forKey:nil completion:completion];
 }
 
-- (void)_performExtrusionRingAnimation
+- (void)_performExtrusionRingAnimationWithCompletion:(void (^)(BOOL finished))completion
 {
     CGRect fromPathRect = CGPathGetPathBoundingBox(_ringLayer.path);
     CGRect toPathRect   = _RectAdjust(fromPathRect, -_lineWidth / 2, _lineWidth, _lineWidth, -_lineWidth);
@@ -402,7 +442,7 @@ static inline void _PerformAfterDelay(CFTimeInterval delay, dispatch_block_t blo
         pathAnimation.timingFunction = _EaseOutTimingFunction();
         pathAnimation.duration       = kImpactAnimationDuration / 2;
     }
-    [_ringLayer addAnimation:pathAnimation forKey:nil];
+    [_ringLayer lx_addAnimation:pathAnimation forKey:nil completion:completion];
 }
 
 #pragma mark 小竖条图层
@@ -418,14 +458,14 @@ static inline void _PerformAfterDelay(CFTimeInterval delay, dispatch_block_t blo
         _smallBarLayer.strokeColor = _ringColor.CGColor;
         _smallBarLayer.path        = path.CGPath;
         _smallBarLayer.bounds      = path.bounds;
-        _smallBarLayer.position    = _PointOffset(self.center, _radius, 0);
+        _smallBarLayer.position    = _PointOffset([self _center], _radius, 0);
     }
     [self.layer addSublayer:_smallBarLayer];
 }
 
 - (UIBezierPath *)_createSmallBarAnimationPath
 {
-    CGPoint ringCenter    = self.center;
+    CGPoint ringCenter    = [self _center];
 
     CGPoint startPoint    = _PointOffset(ringCenter, _radius, 0);
     CGPoint endPoint1     = _PointOffset(ringCenter, _radius / 2, -2 * _radius);
@@ -514,7 +554,7 @@ static inline void _PerformAfterDelay(CFTimeInterval delay, dispatch_block_t blo
 
 - (void)_setupBigBarLayers
 {
-    CGPoint position   = _PointOffset(self.center, 0, -_radius + _lineWidth / 2);
+    CGPoint position   = _PointOffset([self _center], 0, -_radius + _lineWidth / 2);
     CGPoint startPoint = CGPointZero;
     CGPoint endPoint   = { 0, _radius * 2 };
     UIBezierPath *path = [UIBezierPath lx_bezierPathWithStartPoint:startPoint endPoint:endPoint];
@@ -567,6 +607,10 @@ static inline void _PerformAfterDelay(CFTimeInterval delay, dispatch_block_t blo
         _rightBigBarLayer.strokeEnd = 1.0;
         _middleBigBarLayer.strokeEnd = 1.0;
     });
+
+    _PerformAfterDelay(kImpactAnimationDuration + kRemovePatternDelayTime, ^{
+        [self _removeBigBarLayers];
+    });
 }
 
 - (void)_removeBigBarLayers
@@ -585,7 +629,7 @@ static inline void _PerformAfterDelay(CFTimeInterval delay, dispatch_block_t blo
 - (void)_setupCheckmarkLayer
 {
     CGFloat delta  = _radius / 4;
-    CGPoint center = self.center;
+    CGPoint center = [self _center];
     CGPoint point1 = _PointOffset(center, -delta, +delta);
     CGPoint point2 = _PointOffset(center, +delta, +delta);
     CGPoint point3 = _PointOffset(center, +delta, -3 * delta);
@@ -636,7 +680,7 @@ static inline void _PerformAfterDelay(CFTimeInterval delay, dispatch_block_t blo
 {
     CGPoint startPoint = CGPointZero;
     CGPoint endPoint   = { 0, 2 * _radius - 4.5 * _lineWidth };
-    CGPoint position   = _PointOffset(self.center, 0, -_radius + _lineWidth / 2);
+    CGPoint position   = _PointOffset([self _center], 0, -_radius + _lineWidth / 2);
     UIBezierPath *path = [UIBezierPath lx_bezierPathWithStartPoint:startPoint endPoint:endPoint];
 
     _topExclamationLayer = [self _createBigBarLayerWithPath:path.CGPath position:position];
