@@ -28,9 +28,9 @@
 - (IBAction)failure:(id)sender {
 
 //    [LXStatusHUD showFailureWithConfiguration:^(id<LXHUDConfiguration>  _Nonnull configurer) {
-//        configurer.lineWidth = 15;
 //        configurer.radius = 60;
-//        [configurer.exclamationColor:[UIColor greenColor]];
+//        configurer.lineWidth = 15;
+//        configurer.exclamationColor = [UIColor greenColor];
 //    }];
 
     [LXStatusHUD showFailure];
