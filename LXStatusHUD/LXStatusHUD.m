@@ -12,7 +12,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - _LXAnimationDelegate -
 
-@interface _LXAnimationDelegate : NSObject
+@interface _LXAnimationDelegate : NSObject <CAAnimationDelegate>
 {
     void (^_completion)(BOOL finished);
 }
@@ -134,7 +134,7 @@ static inline CAMediaTimingFunction * _EaseInEaseOutTimingFunction()
     return [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
 }
 
-static inline void _PerformWithoutAnimation(void (^actionsWithoutAnimation)())
+static inline void _PerformWithoutAnimation(void (^actionsWithoutAnimation)(void))
 {
     [CATransaction begin];
     [CATransaction setDisableActions:YES];
